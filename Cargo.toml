@@ -5,14 +5,21 @@ name = "cobwebs-rs"
 version = "0.1.0"
 [dependencies]
 geo = "*"
-line_intersection = "*"
 petgraph = "*"
-serde = { version = "*", features = ["derive"] }
-wasm-bindgen = { version = "0.2.63", features = ["serde-serialize"] }
+rstar = "*"
+im = "*"
 
 [dependencies.console_error_panic_hook]
 optional = true
 version = "0.1.6"
+
+[dependencies.serde]
+features = ["derive"]
+version = "*"
+
+[dependencies.wasm-bindgen]
+features = ["serde-serialize"]
+version = "0.2.63"
 
 [dependencies.wee_alloc]
 optional = true
@@ -38,5 +45,7 @@ version = "0.1.6"
 [profile.release.wee_alloc]
 optional = true
 version = "0.4.5"
-wee_alloc = { version = "0.4.5", optional = true }
 
+[profile.release.wee_alloc.wee_alloc]
+optional = true
+version = "0.4.5"
