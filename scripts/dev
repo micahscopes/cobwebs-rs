@@ -1,0 +1,4 @@
+#!/bin/bash
+tmux \
+new-session 'cargo watch -i .gitignore -i "pkg/*" -i "www/*" -s "wasm-pack build --debug --target web"' \; \
+split-window -h 'cd www; npx snowpack dev --watch --reload www/index.html' \; \
