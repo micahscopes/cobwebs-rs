@@ -1,7 +1,7 @@
 use wasm_bindgen::prelude::*;
 use serde::{Serialize,Deserialize};
 use std::collections::HashMap;
-
+use js_sys::Math::random;
 use crate::tabu::{Possible};
 use crate::pos;
 use geo::{Coordinate};
@@ -61,5 +61,22 @@ impl GraphLayout {
       .map(|node_idx| *&self.graph[node_idx])
       .collect();
     return JsValue::from_serde(&result).unwrap()
+  }
+  pub fn randomize_node_positions(&mut self) {
+    fn random_drift() -> f64 {
+      return 5.0*(random() - 0.5);
+    }
+    for node in self.graph.node_weights_mut() {
+      match node.x.zip(node.y) {
+        Some((x,y)) => {
+          node.x = Some(x + random_drift());
+          node.y = Some(y + random_drift());
+        }
+        None => {
+          node.x = Some(random_drift());
+          node.y = Some(random_drift());
+        }
+      }
+    }
   }
 }

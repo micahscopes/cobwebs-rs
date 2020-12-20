@@ -67,6 +67,7 @@ async function run() {
   let layout = new GraphLayout({nodes: nodeData, edges: edgeData});
 
   const step = () => {
+    layout.randomize_node_positions();
     nodes.update([
       ...layout.node_positions(),
       {

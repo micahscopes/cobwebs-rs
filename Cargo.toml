@@ -5,9 +5,11 @@ name = "cobwebs-rs"
 version = "0.1.0"
 [dependencies]
 geo = "*"
-petgraph = "*"
-rstar = "*"
 im = "*"
+js-sys = "*"
+petgraph = "*"
+rand = { git = "https://github.com/rust-lang-nursery/rand", branch = "0.5" }
+rstar = "*"
 
 [dependencies.console_error_panic_hook]
 optional = true
