@@ -1,7 +1,8 @@
-mod utils;
-mod pos;
+mod geometry;
+mod intersections;
 mod layout;
 mod tabu;
+mod utils;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.

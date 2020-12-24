@@ -1,27 +1,8 @@
 import { Network } from "vis-network";
 import { DataSet } from "vis-data";
-
-// create an array with nodes
-var nodeData = [
-  { id: 1, label: "A", x: 200, y: 200 },
-  { id: 2, label: "B", x: 0, y: 0 },
-  { id: 3, label: "C", x: 0, y: 400 },
-  { id: 4, label: "D", x: 400, y: 400 },
-  { id: 5, label: "E", x: 400, y: 0 },
-]
-var nodes = new DataSet(nodeData);
-
-window.nodes = nodeData;
-
-// create an array with edges
-var edgeData = [
-  { from: 1, to: 2, label: "A to B" },
-  { from: 1, to: 3, label: "A to C" },
-  { from: 1, to: 4, label: "A to D" },
-  { from: 1, to: 5, label: "A to E" },
-]
-var edges = new DataSet(edgeData);
-window.edges = edgeData;
+import graphData from "./graph-data.json"
+var nodes = new DataSet(graphData.nodes);
+var edges = new DataSet(graphData.edges);
 
 // create a network
 var container = document.getElementById("graph");
@@ -47,6 +28,7 @@ var options = {
   },
 };
 var network = new Network(container, data, options);
+window.network = network;
 
 // Set the coordinate system of Network such that it exactly
 // matches the actual pixels of the HTML canvas on screen
@@ -57,28 +39,55 @@ network.moveTo({
   offset: { x: -width / 2, y: -height / 2 },
   scale: 1,
 });
+
+nodes.forEach(node => {
+  let positions = network.getPositions(node.id);
+  node.x = positions[node.id].x;
+  node.y = positions[node.id].y;
+})
+
 import init, { GraphLayout } from './pkg/cobwebs_rs';
 
 async function run() {
   await init();
-
-  window.GraphLayout = GraphLayout
-  console.log(GraphLayout)
-  let layout = new GraphLayout({nodes: nodeData, edges: edgeData});
-
+  let layout = new GraphLayout(graphData.nodes, graphData.edges);
+  const peak = 50
+  let initialTime = null
   const step = () => {
-    layout.randomize_node_positions();
+    initialTime ||= Date.now()
+    layout.randomize_node_positions(peak*Math.sin((Date.now() - initialTime)/4000)**2);
+    let i = 0
+    while (i < 50) {
+      layout.inside_box(250, true);
+      i=i+1
+    }
+    // for(let j=0; j<50; j++) {
+    //   layout.count_graph_intersections(true);
+      // layout.count_edges_intersections(false);
+    // }
+
+    // layout.tree_facts();
     nodes.update([
-      ...layout.node_positions(),
+      ...layout.nodes_data(),
       {
         id: 2,
-        x: 100 * Math.tan(Date.now() / 1000 - width / 3),
-        y: 100 * Math.sin(Date.now() / 1000),
-      }
-    ]);
-    window.requestAnimationFrame(step);
+        x: 500 * Math.cos(Date.now() / 1000),
+        y: 500 * Math.sin(Date.now() / 1000),
+      },
+      {
+        id: 3,
+        x: 200 * Math.cos(Date.now() / 500)+150,
+        y: 200 * Math.sin(Date.now() / 500)+300,
+      },
+      {
+        id: 4,
+        x: 200 * Math.cos(Date.now() / 2000)-100,
+        y: 200 * Math.sin(Date.now() / 2000)-200,
+      },
+    ])
+    setTimeout(() => window.requestAnimationFrame(step), 1000/60)
   };
-  window.requestAnimationFrame(step);
+  setTimeout(() => window.requestAnimationFrame(step), 3000)
 }
 
-run();
+run()

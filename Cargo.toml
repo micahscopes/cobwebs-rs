@@ -4,16 +4,43 @@ edition = "2018"
 name = "cobwebs-rs"
 version = "0.1.0"
 [dependencies]
+bimap = "*"
+cached = "*"
+console_log = "*"
+delegate = "*"
+fixed = "*"
 geo = "*"
 im = "*"
+itertools = "*"
 js-sys = "*"
+line_intersection = "*"
+log = "*"
+num-traits = "*"
 petgraph = "*"
-rand = { git = "https://github.com/rust-lang-nursery/rand", branch = "0.5" }
+rayon = "*"
 rstar = "*"
+web-sys = "*"
+web_worker = "*"
+
+[dependencies.arraystring]
+features = ["serde-traits"]
+version = "*"
 
 [dependencies.console_error_panic_hook]
 optional = true
 version = "0.1.6"
+
+[dependencies.ordered-float]
+features = ["serde"]
+version = "*"
+
+[dependencies.rand]
+branch = "0.5"
+git = "https://github.com/rust-lang-nursery/rand"
+
+[dependencies.rust_decimal]
+features = ["serde-float"]
+version = "*"
 
 [dependencies.serde]
 features = ["derive"]
