@@ -55,10 +55,10 @@ async function run() {
   let initialTime = null
   const step = () => {
     initialTime ||= Date.now()
-    layout.randomize_node_positions(peak*Math.sin((Date.now() - initialTime)/4000)**2);
+    // layout.randomize_node_positions(peak*Math.sin((Date.now() - initialTime)/4000)**2);
     let i = 0
     while (i < 50) {
-      layout.inside_box(250, true);
+      // layout.inside_box(250, true);
       i=i+1
     }
     // for(let j=0; j<50; j++) {

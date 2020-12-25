@@ -1,6 +1,7 @@
-use crate::geometry::tree::GraphGeoTree;
-use crate::geometry::tree::GraphGeoTreeObject;
+use crate::geometry::tree::GraphGeo;
+use crate::geometry::tree::GraphGeoElement;
 use crate::geometry::NodeGeo;
+use crate::geometry::{Edge, Node};
 use arraystring::{typenum::U64, ArrayString};
 use bimap::BiMap;
 use geo::algorithm::euclidean_distance::EuclideanDistance;
@@ -78,20 +79,21 @@ pub struct GraphLayout {
     #[wasm_bindgen(skip)]
     pub graph: StableGraph<NodeData, ()>,
     #[wasm_bindgen(skip)]
-    pub graph_node_coordinates: HashMap<NodeIndex, NodeGeo>,
-    #[wasm_bindgen(skip)]
-    pub graph_geo_tree: GraphGeoTree,
+    pub graph_geo: GraphGeo,
     node_id_to_graph_index: BiMap<NodeDataId, NodeIndex>,
 }
 
 impl GraphLayout {
     pub fn node_data(&self, idx: NodeIndex) -> Option<NodeData> {
-        let coordinate = self.graph_node_coordinates[&idx];
-        return Some(NodeData {
-            x: Some(coordinate.x),
-            y: Some(coordinate.y),
-            id: *self.node_id_to_graph_index.get_by_right(&idx).unwrap(),
-        });
+        let node_geo = self.node_geo(idx);
+        return match node_geo {
+            Some(geo) => Some(NodeData {
+                x: Some(geo.x),
+                y: Some(geo.y),
+                id: *self.node_id_to_graph_index.get_by_right(&idx).unwrap(),
+            }),
+            _ => None,
+        };
     }
 }
 
@@ -103,8 +105,7 @@ impl GraphLayout {
         let mut layout = GraphLayout {
             graph: StableGraph::<NodeData, ()>::new(),
             node_id_to_graph_index: BiMap::new(),
-            graph_node_coordinates: HashMap::new(),
-            graph_geo_tree: GraphGeoTree::new(),
+            graph_geo: GraphGeo::new(),
         };
 
         let nodes: Result<Vec<NodeData>, _> = JsValue::into_serde(&nodes);
@@ -152,7 +153,7 @@ impl GraphLayout {
     }
 
     pub fn tree_facts(&self) {
-        let tree = &self.graph_geo_tree;
+        let tree = &self.graph_geo;
         info!(
             "nodes: {}, edges: {} ",
             tree.nodes.iter().count(),
@@ -172,14 +173,13 @@ impl GraphLayout {
             }),
         );
 
-        let in_envelope =
-            self.graph_geo_tree.rtree.locate_in_envelope(&envelope);
+        let in_envelope = self.graph_geo.rtree.locate_in_envelope(&envelope);
 
         let mut num_edges = 0;
         let mut num_nodes = 0;
         for geo in in_envelope {
             match geo {
-                GraphGeoTreeObject::Edge(_, _) => num_edges += 1,
+                GraphGeoElement::Edge(_, _) => num_edges += 1,
                 _ => num_nodes += 1,
             }
         }
@@ -250,15 +250,15 @@ impl GraphLayout {
         let node_indices: Vec<NodeIndex> = self.graph.node_indices().collect();
 
         for idx in node_indices.into_iter() {
-            match self.graph_node_coordinates.clone().get(&idx) {
-                Some(pos) => self.set_node_geo(
+            match self.graph_geo.nodes.clone().get_by_left(&idx) {
+                Some(Node(_, pos)) => self.set_node_geo(
                     idx,
                     Coordinate {
                         x: pos.x + random_drift(),
                         y: pos.y + random_drift(),
                     },
                 ),
-                None => self.set_node_geo(
+                _ => self.set_node_geo(
                     idx,
                     Coordinate {
                         x: random_drift(),

@@ -1,3 +1,5 @@
+#![warn(missing_debug_implemntations, rust_2018_idioms, missing_docs)]
+
 mod geometry;
 mod intersections;
 mod layout;

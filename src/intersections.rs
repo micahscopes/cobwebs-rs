@@ -18,7 +18,7 @@ impl GraphLayout {
         match self.edge_geo(edge_index) {
             Some(edge) => edge_intersects_edges(
                 edge,
-                self.graph_geo_tree.edges_in_envelope(&edge.envelope()),
+                self.graph_geo.edges_in_envelope(&edge.envelope()),
             )
             .count(),
             None => 0,
